@@ -69,40 +69,59 @@
     <br>
 
     <button onclick="resetCaves()">Reset</button>
+
+    <br>
+
+    <input id="manualInput" placeholder="Enter cave # (0–260)" style="padding:5px;">
+
+    <button onclick="goToCave()">Go</button>
+
+    <br><br>
+
+<button onclick="exportSave()">Export Save</button>
+<button onclick="importSave()">Import Save</button>
 </div>
 
 <script>
 let availableCaves = [];
+let lastCave = null;
 
-// 🔹 Load from storage OR create new
+// 🔹 Load data
 function initializeCaves() {
-    let saved = localStorage.getItem("cavePool");
+    let savedPool = localStorage.getItem("cavePool");
+    let savedLast = localStorage.getItem("lastCave");
 
-    if (saved) {
-        availableCaves = JSON.parse(saved);
+    if (savedPool) {
+        availableCaves = JSON.parse(savedPool);
     } else {
+        // Create fresh pool WITHOUT calling reset
         availableCaves = [];
         for (let i = 0; i <= 260; i++) {
             availableCaves.push(i);
         }
-        saveCaves();
+        saveData();
+    }
+
+    if (savedLast) {
+        lastCave = savedLast;
+        document.getElementById("caveNumber").innerText = lastCave;
     }
 
     updateRemaining();
 }
-
-// 🔹 Save to browser
-function saveCaves() {
+// 🔹 Save data
+function saveData() {
     localStorage.setItem("cavePool", JSON.stringify(availableCaves));
+    localStorage.setItem("lastCave", lastCave);
 }
 
-// 🔹 Update UI text
+// 🔹 Update UI
 function updateRemaining() {
     document.getElementById("remaining").innerText =
         "Remaining: " + availableCaves.length;
 }
 
-// 🔹 Generate cave
+// 🎲 Generate random cave
 function generateCave() {
     if (availableCaves.length === 0) {
         alert("All caves explored! Resetting...");
@@ -113,28 +132,98 @@ function generateCave() {
     let index = Math.floor(Math.random() * availableCaves.length);
     let num = availableCaves.splice(index, 1)[0];
 
-    saveCaves();
+    setCave(num);
+}
 
+// 🔢 Manual input
+function goToCave() {
+    let input = document.getElementById("manualInput").value;
+    document.getElementById("manualInput").value = "";
+
+    if (input === "") return;
+
+    let num = parseInt(input);
+
+    if (isNaN(num) || num < 0 || num > 260) {
+        alert("Enter a number between 00 and 260");
+        return;
+    }
+
+    if (!availableCaves.includes(num)) {
+        alert("This cave was already explored!");
+        return;
+    }
+
+    let index = availableCaves.indexOf(num);
+    if (index !== -1) {
+        availableCaves.splice(index, 1);
+    }
+
+    setCave(num);
+}
+// 🔹 Set cave (shared logic)
+function setCave(num) {
     let formatted = num.toString().padStart(2, '0');
+
+    lastCave = formatted;
     document.getElementById("caveNumber").innerText = formatted;
 
+    saveData();
     updateRemaining();
 }
 
-// 🔹 Reset manually
+// 🔄 Reset
 function resetCaves() {
     availableCaves = [];
     for (let i = 0; i <= 260; i++) {
         availableCaves.push(i);
     }
 
-    saveCaves();
+    lastCave = null;
+
+    saveData();
 
     document.getElementById("caveNumber").innerText = "--";
     updateRemaining();
 }
 
-// 🔹 Initialize on load
+// 📤 Export Save
+function exportSave() {
+    let data = {
+        pool: availableCaves,
+        last: lastCave
+    };
+
+    let encoded = btoa(JSON.stringify(data));
+    navigator.clipboard.writeText(encoded);
+    alert("Save code copied to clipboard!");
+}
+
+// 📥 Import Save
+function importSave() {
+    let input = prompt("Paste your save code:");
+
+    if (!input) return;
+
+    try {
+        let decoded = JSON.parse(atob(input));
+
+        availableCaves = decoded.pool;
+        lastCave = decoded.last;
+
+        saveData();
+
+        document.getElementById("caveNumber").innerText =
+            lastCave ? lastCave : "--";
+
+        updateRemaining();
+    } catch {
+        alert("Invalid save code");
+    }
+}
+
+// 🔹 Init
 initializeCaves();
-</script></body>
+</script>
+</body>
 </html>
