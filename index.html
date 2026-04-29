@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cave Generator</title>
+<style>
+    body {
+        background: #111;
+        color: #e8e2c8;
+        font-family: serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        flex-direction: column;
+    }
+
+    .card {
+        border: 2px solid #e8e2c8;
+        padding: 40px;
+        border-radius: 12px;
+        text-align: center;
+        background: #1a1a1a;
+        box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+
+    h1 {
+        margin-bottom: 10px;
+        letter-spacing: 2px;
+    }
+
+    .number {
+        font-size: 72px;
+        margin: 20px 0;
+    }
+
+    button {
+        padding: 10px 20px;
+        font-size: 18px;
+        background: #333;
+        color: #e8e2c8;
+        border: 1px solid #e8e2c8;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #555;
+    }
+</style>
+</head>
+<body>
+
+<div class="card">
+    <h1>CAVE DISCOVERY</h1>
+    <div class="number" id="caveNumber">--</div>
+    <button onclick="generateCave()">Discover Cave</button>
+</div>
+
+<script>
+function generateCave() {
+    let num = Math.floor(Math.random() * 261); // 0–260
+    let formatted = num.toString().padStart(2, '0');
+    document.getElementById("caveNumber").innerText = formatted;
+}
+</script>
+
+</body>
+</html>
