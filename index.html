@@ -74,38 +74,67 @@
 <script>
 let availableCaves = [];
 
+// 🔹 Load from storage OR create new
 function initializeCaves() {
-    availableCaves = [];
-    for (let i = 0; i <= 260; i++) {
-        availableCaves.push(i);
+    let saved = localStorage.getItem("cavePool");
+
+    if (saved) {
+        availableCaves = JSON.parse(saved);
+    } else {
+        availableCaves = [];
+        for (let i = 0; i <= 260; i++) {
+            availableCaves.push(i);
+        }
+        saveCaves();
     }
+
+    updateRemaining();
 }
 
+// 🔹 Save to browser
+function saveCaves() {
+    localStorage.setItem("cavePool", JSON.stringify(availableCaves));
+}
+
+// 🔹 Update UI text
+function updateRemaining() {
+    document.getElementById("remaining").innerText =
+        "Remaining: " + availableCaves.length;
+}
+
+// 🔹 Generate cave
 function generateCave() {
     if (availableCaves.length === 0) {
         alert("All caves explored! Resetting...");
-        initializeCaves();
+        resetCaves();
+        return;
     }
 
     let index = Math.floor(Math.random() * availableCaves.length);
     let num = availableCaves.splice(index, 1)[0];
 
+    saveCaves();
+
     let formatted = num.toString().padStart(2, '0');
     document.getElementById("caveNumber").innerText = formatted;
 
-    document.getElementById("remaining").innerText =
-        "Remaining: " + availableCaves.length;
+    updateRemaining();
 }
 
+// 🔹 Reset manually
 function resetCaves() {
-    initializeCaves();
+    availableCaves = [];
+    for (let i = 0; i <= 260; i++) {
+        availableCaves.push(i);
+    }
+
+    saveCaves();
+
     document.getElementById("caveNumber").innerText = "--";
-    document.getElementById("remaining").innerText =
-        "Remaining: " + availableCaves.length;
+    updateRemaining();
 }
 
-// Initialize on load
+// 🔹 Initialize on load
 initializeCaves();
-</script>
-</body>
+</script></body>
 </html>
