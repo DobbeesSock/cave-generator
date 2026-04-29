@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <title>Cave Generator</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#111111">
 <style>
     body {
         background: #111;
@@ -224,6 +227,12 @@ function importSave() {
 
 // 🔹 Init
 initializeCaves();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js');
+}
 </script>
 </body>
 </html>
