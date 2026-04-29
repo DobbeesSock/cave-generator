@@ -46,6 +46,12 @@
     button:hover {
         background: #555;
     }
+
+    #remaining {
+    	margin-top: 10px;
+    	font-size: 14px;
+    	opacity: 0.8;
+    }
 </style>
 </head>
 <body>
@@ -53,16 +59,53 @@
 <div class="card">
     <h1>CAVE DISCOVERY</h1>
     <div class="number" id="caveNumber">--</div>
+
     <button onclick="generateCave()">Discover Cave</button>
+
+    <br><br>
+
+    <div id="remaining">Remaining: 261</div>
+
+    <br>
+
+    <button onclick="resetCaves()">Reset</button>
 </div>
 
 <script>
+let availableCaves = [];
+
+function initializeCaves() {
+    availableCaves = [];
+    for (let i = 0; i <= 260; i++) {
+        availableCaves.push(i);
+    }
+}
+
 function generateCave() {
-    let num = Math.floor(Math.random() * 261); // 0–260
+    if (availableCaves.length === 0) {
+        alert("All caves explored! Resetting...");
+        initializeCaves();
+    }
+
+    let index = Math.floor(Math.random() * availableCaves.length);
+    let num = availableCaves.splice(index, 1)[0];
+
     let formatted = num.toString().padStart(2, '0');
     document.getElementById("caveNumber").innerText = formatted;
-}
-</script>
 
+    document.getElementById("remaining").innerText =
+        "Remaining: " + availableCaves.length;
+}
+
+function resetCaves() {
+    initializeCaves();
+    document.getElementById("caveNumber").innerText = "--";
+    document.getElementById("remaining").innerText =
+        "Remaining: " + availableCaves.length;
+}
+
+// Initialize on load
+initializeCaves();
+</script>
 </body>
 </html>
