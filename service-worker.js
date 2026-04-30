@@ -1,4 +1,4 @@
-const CACHE_NAME = "cave-generator-v1";
+const CACHE_NAME = "cave-generator-v2";
 
 const urlsToCache = [
   "/",
