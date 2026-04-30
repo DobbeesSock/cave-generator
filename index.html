@@ -79,7 +79,18 @@
 
     <button onclick="goToCave()">Go</button>
 
-    <br><br>
+    <br>
+
+<select id="campaignSelect" onchange="switchCampaign()">
+    <option value="campaign1">Campaign 1</option>
+    <option value="campaign2">Campaign 2</option>
+    <option value="campaign3">Campaign 3</option>
+</select>
+
+<button onclick="newCampaign()">New</button>
+<button onclick="deleteCampaign()">Delete</button>
+
+<br><br>
 
 <button onclick="exportSave()">Export Save</button>
 <button onclick="importSave()">Import Save</button>
@@ -88,35 +99,19 @@
 <script>
 let availableCaves = [];
 let lastCave = null;
+let currentCampaign = "campaign1";
 
 // 🔹 Load data
 function initializeCaves() {
-    let savedPool = localStorage.getItem("cavePool");
-    let savedLast = localStorage.getItem("lastCave");
+    currentCampaign = localStorage.getItem("currentCampaign") || "campaign1";
+    document.getElementById("campaignSelect").value = currentCampaign;
 
-    if (savedPool) {
-        availableCaves = JSON.parse(savedPool);
-    } else {
-        // Create fresh pool WITHOUT calling reset
-        availableCaves = [];
-        for (let i = 0; i <= 260; i++) {
-            availableCaves.push(i);
-        }
-        saveData();
-    }
-
-    if (savedLast) {
-        lastCave = savedLast;
-        document.getElementById("caveNumber").innerText = lastCave;
-    }
-
-    updateRemaining();
+    loadCampaign();
 }
+    
+
 // 🔹 Save data
-function saveData() {
-    localStorage.setItem("cavePool", JSON.stringify(availableCaves));
-    localStorage.setItem("lastCave", lastCave);
-}
+
 
 // 🔹 Update UI
 function updateRemaining() {
@@ -223,6 +218,82 @@ function importSave() {
     } catch {
         alert("Invalid save code");
     }
+}
+
+function loadCampaign() {
+    let savedPool = localStorage.getItem(currentCampaign + "_pool");
+    let savedLast = localStorage.getItem(currentCampaign + "_last");
+
+    if (savedPool) {
+        availableCaves = JSON.parse(savedPool);
+    } else {
+        availableCaves = [];
+        for (let i = 0; i <= 260; i++) {
+            availableCaves.push(i);
+        }
+    }
+
+    lastCave = savedLast;
+
+    document.getElementById("caveNumber").innerText =
+        lastCave ? lastCave : "--";
+
+    updateRemaining();
+}
+
+function saveData() {
+    localStorage.setItem(currentCampaign + "_pool", JSON.stringify(availableCaves));
+    localStorage.setItem(currentCampaign + "_last", lastCave);
+    localStorage.setItem("currentCampaign", currentCampaign);
+}
+
+function switchCampaign() {
+    saveData(); // save current BEFORE switching
+    currentCampaign = document.getElementById("campaignSelect").value;
+    loadCampaign();
+}
+
+function newCampaign() {
+    let name = prompt("Enter new campaign name:");
+
+    if (!name) return;
+
+    let key = name.replace(/\s+/g, "").toLowerCase();
+
+    let select = document.getElementById("campaignSelect");
+
+    let option = document.createElement("option");
+    option.value = key;
+    option.text = name;
+
+    select.appendChild(option);
+
+    select.value = key;
+
+    currentCampaign = key;
+
+    resetCaves();
+}
+
+function deleteCampaign() {
+    if (currentCampaign === "campaign1") {
+        alert("Cannot delete default campaign");
+        return;
+    }
+
+    if (!confirm("Delete this campaign?")) return;
+
+    localStorage.removeItem(currentCampaign + "_pool");
+    localStorage.removeItem(currentCampaign + "_last");
+
+    let select = document.getElementById("campaignSelect");
+
+    select.querySelector(`option[value="${currentCampaign}"]`).remove();
+
+    currentCampaign = "campaign1";
+    select.value = currentCampaign;
+
+    loadCampaign();
 }
 
 // 🔹 Init
